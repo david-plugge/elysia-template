@@ -160,7 +160,6 @@ export const SessionServiceProvider = new Elysia({ name: 'service:session' })
 			cookie: { session_id },
 			SessionService,
 		}) {
-			// @ts-expect-error session_id is always defined
 			const Session = new RequestSession(session_id, SessionService, {
 				...sessionConfig.cookieOptions,
 				maxAge: sessionConfig.maxAge,
