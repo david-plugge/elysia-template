@@ -1,15 +1,31 @@
 {
-  "name": "elysia-template",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "elysia-template",
+	"version": "1.0.0",
+	"type": "module",
+	"module": "src/index.js",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"format": "biome format --write .",
+		"lint": "biome lint --error-on-warnings .",
+		"lint:write": "biome lint --write ."
+	},
+	"dependencies": {
+		"@bogeychan/elysia-logger": "^0.1.4",
+		"@elysiajs/cors": "^1.1.1",
+		"@elysiajs/server-timing": "^1.1.0",
+		"@elysiajs/swagger": "^1.1.5",
+		"@sinclair/typebox": "0.33.16",
+		"elysia": "^1.1.22",
+		"ioredis": "^5.4.1",
+		"oslo": "^1.2.1",
+		"postgres": "^3.4.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.3",
+		"bun-types": "1.1.30"
+	},
+	"overrides": {
+		"@sinclair/typebox": "0.33.16"
+	},
+	"packageManager": "bun@1.1.30"
 }

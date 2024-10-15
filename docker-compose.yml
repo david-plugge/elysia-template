@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pg_data:/var/lib/postgres/data
+
+  redis:
+    image: eqalpha/keydb
+    ports:
+      - 6379:6379
+    volumes:
+      # - ./redis.conf:/etc/keydb/redis.conf
+      - keydb_data:/data
+
+volumes:
+  pg_data:
+    driver: local
+  keydb_data:
+    driver: local
