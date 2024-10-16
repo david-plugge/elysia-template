@@ -10,7 +10,7 @@ export const UserController = new Elysia({
 	.use(UserRepositoryProvider)
 	.get(
 		'/users',
-		async ({ UserRepository }) => {
+		async function handleGetUsers({ UserRepository }) {
 			const users = await UserRepository.listUsers();
 
 			return {
@@ -30,7 +30,7 @@ export const UserController = new Elysia({
 	)
 	.post(
 		'/users',
-		async ({ UserRepository, body }) => {
+		async function handleCreateUser({ UserRepository, body }) {
 			const newUser: User = {
 				id: crypto.randomUUID(),
 				...body,
@@ -56,7 +56,11 @@ export const UserController = new Elysia({
 	)
 	.get(
 		'/users/:userId',
-		async ({ UserRepository, params: { userId }, error }) => {
+		async function handleGetUserById({
+			UserRepository,
+			params: { userId },
+			error,
+		}) {
 			const user = await UserRepository.getUserById(userId);
 
 			if (!user) {
@@ -88,7 +92,12 @@ export const UserController = new Elysia({
 	)
 	.patch(
 		'/users/:userId',
-		async ({ UserRepository, params: { userId }, body, error }) => {
+		async function handleUpdateUserById({
+			UserRepository,
+			params: { userId },
+			body,
+			error,
+		}) {
 			const existingUser = await UserRepository.getUserById(userId);
 			if (!existingUser) {
 				return error('Not Found', {
@@ -133,7 +142,11 @@ export const UserController = new Elysia({
 	)
 	.delete(
 		'/users/:userId',
-		async ({ UserRepository, params: { userId }, error }) => {
+		async function handleDeleteUserById({
+			UserRepository,
+			params: { userId },
+			error,
+		}) {
 			const user = await UserRepository.deleteUserById(userId);
 
 			if (!user) {

@@ -22,7 +22,7 @@ export class UserRepository {
 			username
 		`;
 
-		return Value.Parse(t.Array(UserSchema), rowList);
+		return Value.Parse(t.Array(UserSchema), rowList[0]);
 	}
 
 	async listUsers(): Promise<User[]> {
@@ -58,6 +58,9 @@ export class UserRepository {
 		WHERE id = ${id}
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(UserSchema, rowList[0]);
 	}
 
@@ -74,6 +77,9 @@ export class UserRepository {
 			username
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(UserSchema, rowList[0]);
 	}
 
@@ -86,6 +92,9 @@ export class UserRepository {
 			username
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(UserSchema, rowList[0]);
 	}
 }

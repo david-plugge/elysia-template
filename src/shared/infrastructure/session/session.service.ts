@@ -1,9 +1,8 @@
-import { alphabet, generateRandomString } from 'oslo/crypto';
 import type { Redis } from 'ioredis';
 import { sessionConfig } from '@/shared/infrastructure/config';
 import Elysia, { error, type Cookie, type CookieOptions } from 'elysia';
 import { RedisProvider } from '../redis';
-import { UserRepositoryProvider } from '@/users/infrastructure/user.repository';
+import { generateSessionToken, sessionTokenToId } from './utils';
 
 export interface Session {
 	userId: string;
@@ -53,14 +52,10 @@ export class SessionService {
 	async deleteSession(sessionId: string) {
 		await this.#cache.del(this.#buildId(sessionId));
 	}
-
-	static generateSessionId() {
-		return generateRandomString(16, alphabet('0-9', 'a-z', 'A-Z'));
-	}
 }
 
 class RequestSession {
-	#sessionCookie: Cookie<string | undefined>;
+	#sessionTokenCookie: Cookie<string | undefined>;
 	#service: SessionService;
 	#session: Session | null = null;
 	#cookieOptions: CookieOptions;
@@ -70,13 +65,13 @@ class RequestSession {
 		service: SessionService,
 		cookieOptions: CookieOptions,
 	) {
-		this.#sessionCookie = sessionCookie;
+		this.#sessionTokenCookie = sessionCookie;
 		this.#service = service;
 		this.#cookieOptions = cookieOptions;
 	}
 
-	get id() {
-		return this.#sessionCookie.value;
+	get token() {
+		return this.#sessionTokenCookie.value;
 	}
 
 	async validate(): Promise<Session> {
@@ -91,15 +86,16 @@ class RequestSession {
 	}
 
 	async get() {
-		if (!this.id) {
-			return null;
-		}
-
 		if (this.#session) {
 			return this.#session;
 		}
 
-		const session = await this.#service.getSessionById(this.id);
+		if (!this.token) {
+			return null;
+		}
+
+		const sessionId = sessionTokenToId(this.token);
+		const session = await this.#service.getSessionById(sessionId);
 
 		if (!session) {
 			this.#clearCookie();
@@ -110,7 +106,7 @@ class RequestSession {
 	}
 
 	#clearCookie() {
-		this.#sessionCookie.set({
+		this.#sessionTokenCookie.set({
 			...this.#cookieOptions,
 			value: '',
 			maxAge: -1,
@@ -118,25 +114,27 @@ class RequestSession {
 	}
 
 	async delete() {
-		if (this.id) {
-			await this.#service.deleteSession(this.id);
+		if (this.token) {
+			const sessionId = sessionTokenToId(this.token);
+			await this.#service.deleteSession(sessionId);
 			this.#clearCookie();
 		}
 	}
 
 	async set(session: Session) {
-		let id = this.id;
+		let token = this.token;
 
-		if (!id) {
-			id = SessionService.generateSessionId();
-			this.#sessionCookie.set({
+		if (!token) {
+			token = generateSessionToken();
+			this.#sessionTokenCookie.set({
 				...this.#cookieOptions,
-				value: id,
+				value: token,
 			});
 		}
 
+		const sessionId = sessionTokenToId(token);
 		this.#session = null;
-		await this.#service.setSession(id, session);
+		await this.#service.setSession(sessionId, session);
 	}
 }
 
@@ -170,7 +168,6 @@ export const SessionServiceProvider = new Elysia({ name: 'service:session' })
 			};
 		},
 	)
-	.use(UserRepositoryProvider)
 	.macro(({ onBeforeHandle }) => ({
 		isValidSession(value: boolean) {
 			onBeforeHandle(async ({ Session, error }) => {

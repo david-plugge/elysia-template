@@ -86,12 +86,12 @@ export const AuthController = new Elysia({
 					throw new Error('State mismatch');
 				}
 
-				const { access_token } = await AuthService.verifyAuthorizationCode(
+				const { accessToken } = await AuthService.verifyAuthorizationCode(
 					code,
 					codeVerifier,
 				);
 
-				const authUser = await AuthService.getUser(access_token);
+				const authUser = await AuthService.getUser(accessToken);
 
 				Session.set({
 					userId: authUser.id,
@@ -137,7 +137,7 @@ export const AuthController = new Elysia({
 	)
 	.post(
 		'/logout',
-		async ({ Session }) => {
+		async function handleLogout({ Session }) {
 			await Session.delete();
 
 			return {

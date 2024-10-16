@@ -10,7 +10,7 @@ export const PostController = new Elysia({
 	.use(PostRepositoryProvider)
 	.get(
 		'/posts',
-		async ({ PostRepository }) => {
+		async function handleGetPosts({ PostRepository }) {
 			const posts = await PostRepository.listPosts();
 
 			return {
@@ -30,7 +30,7 @@ export const PostController = new Elysia({
 	)
 	.post(
 		'/posts',
-		async ({ PostRepository, body }) => {
+		async function handleCreatePost({ PostRepository, body }) {
 			const newPost: Post = {
 				id: crypto.randomUUID(),
 				...body,
@@ -56,7 +56,11 @@ export const PostController = new Elysia({
 	)
 	.get(
 		'/posts/:postId',
-		async ({ PostRepository, params: { postId }, error }) => {
+		async function handleGetPostById({
+			PostRepository,
+			params: { postId },
+			error,
+		}) {
 			const post = await PostRepository.getPostById(postId);
 
 			if (!post) {
@@ -88,7 +92,12 @@ export const PostController = new Elysia({
 	)
 	.patch(
 		'/posts/:postId',
-		async ({ PostRepository, params: { postId }, body, error }) => {
+		async function handleUpdatePostByID({
+			PostRepository,
+			params: { postId },
+			body,
+			error,
+		}) {
 			const existingPost = await PostRepository.getPostById(postId);
 			if (!existingPost) {
 				return error('Not Found', {
@@ -133,7 +142,11 @@ export const PostController = new Elysia({
 	)
 	.delete(
 		'/posts/:postId',
-		async ({ PostRepository, params: { postId }, error }) => {
+		async function handleDeletePostById({
+			PostRepository,
+			params: { postId },
+			error,
+		}) {
 			const post = await PostRepository.deletePostById(postId);
 
 			if (!post) {

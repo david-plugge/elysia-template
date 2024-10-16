@@ -29,7 +29,7 @@ export class PostRepository {
 			date
 		`;
 
-		return Value.Parse(t.Array(PostSchema), rowList);
+		return Value.Parse(PostSchema, rowList[0]);
 	}
 
 	async listPosts(): Promise<Post[]> {
@@ -71,6 +71,9 @@ export class PostRepository {
 		WHERE id = ${id}
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(PostSchema, rowList[0]);
 	}
 
@@ -91,6 +94,9 @@ export class PostRepository {
 			date
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(PostSchema, rowList[0]);
 	}
 
@@ -105,6 +111,9 @@ export class PostRepository {
 			date
 		`;
 
+		if (rowList.length === 0) {
+			return null;
+		}
 		return Value.Parse(PostSchema, rowList[0]);
 	}
 }
